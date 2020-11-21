@@ -24,7 +24,6 @@ const crawlByCategory = async (
     for (let i = 0; i < hrefs.length; i++) {
         await getItemByUrl(`${BASEURL_TGDD + hrefs[i]}`, $browser, category, collection);
     }
-    // console.log(res);
     await $page.close();
 };
 /* Get HREF link */
@@ -104,12 +103,13 @@ const viewMore = async ($page: puppeteer.Page) => {
     try {
         //set {headless : false} to debug
         const $browser = await puppeteer.launch({ headless: true });
+        /* Edit code here */
         await crawlByCategory("laptop", $browser, "laptop",4, laptops);
         await crawlByCategory("dtdd", $browser, "mobile phone", 4, mobiles);
         await $browser.close();
-
         const data = laptops.concat(mobiles);
         saveToJSON(data, "data.json");
+        /* == */
     } catch (err) {
         console.log(`=======ERROR=======\n ${err}`);
     }
