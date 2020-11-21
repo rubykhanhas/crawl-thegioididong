@@ -2,6 +2,7 @@
 
 ### Quick start
 ```
-yarn install && yarn start && yarn run open
+yarn install && yarn start
+yarn run open
 ```
 
