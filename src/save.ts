@@ -19,6 +19,6 @@ export const saveToJSON = async (data: any, fileName: string, dir = "") => {
     });
     const jsonData = JSON.stringify(data);
     fs.writeFile(`${dir+fileName}`,jsonData,'utf8', () => {
-        console.log(`Saved to ${dir+fileName} (${jsonData.length}items)`);
+        console.log(`Saved to '${dir+fileName}' (${data.length} items)`);
     })
 }

@@ -7,19 +7,19 @@ dotenv.config();
 
 const BASEURL_TGDD = process.env.BASEURL_TGDD?.toString() || "https://www.thegioididong.com";
 
-let laptops: ItemSchema[] = [];
-let mobiles: ItemSchema[] = [];
-
 const crawlByCategory = async (
     url: string,
     $browser: puppeteer.Browser,
     category: string,
-    pagesOfItem = 0,
-    collection: ItemSchema[]
+    collection: ItemSchema[],
+    pagesOfItem = 0
 ) => {
     const $page = await $browser.newPage();
     await $page.goto(BASEURL_TGDD + "/" + url);
+    await console.log(`Crawling ${BASEURL_TGDD + "/" + url}...`);
+    // times click 'viewmore btn'
     for (let i = 1; i <= pagesOfItem; i++) await viewMore($page);
+
     const hrefs = await getHref($page);
     for (let i = 0; i < hrefs.length; i++) {
         await getItemByUrl(`${BASEURL_TGDD + hrefs[i]}`, $browser, category, collection);
@@ -44,7 +44,11 @@ const getItemByUrl = async (
         // Query DOM
         const images = await $page.$eval("#normalproduct .picture", (tag) => {
             const imgs = tag.getElementsByTagName("img");
-            const res = Array.from(imgs).map((img) => img.getAttribute("src") || "");
+            const res = Array.from(imgs).map((img) => {
+                const src = img.getAttribute("src") || "";
+                // Some src start with '//' not http
+                return src.replace(/^(\/\/)/, "https://");
+            });
             return res;
         });
         const title = (await $page.$eval("h1[data-p='3']", (tag) => tag.textContent)) || "";
@@ -52,8 +56,8 @@ const getItemByUrl = async (
             (await $page.$eval(".area_price > strong", (tag) => {
                 if (tag.textContent) {
                     const VND_TO_USD_RATE = 0.000043;
-                    return parseFloat(
-                        (parseFloat(tag.textContent.slice(0, -1).replace(/\./gim, "")) * VND_TO_USD_RATE).toFixed(2)
+                    return parseInt(
+                        (parseInt(tag.textContent.slice(0, -1).replace(/\./gim, "")) * VND_TO_USD_RATE).toFixed(0)
                     );
                 }
             })) || 0;
@@ -70,7 +74,7 @@ const getItemByUrl = async (
         const sold = Math.floor(Math.random() * 200);
         const remain = Math.floor(Math.random() * 100);
         const sales = Math.floor(Math.random() * 4) * 5;
-        const salePrice = price ? price - (sales / 100) * price : 0;
+        const salePrice = parseInt((price ? price - (sales / 100) * price : 0).toFixed(0));
 
         const _item = {
             images,
@@ -87,7 +91,7 @@ const getItemByUrl = async (
         collection.push(_item);
         await $page.close();
     } catch (err) {
-        console.log(`${Error + itemUrl}`);
+        console.log(`${err + itemUrl}`);
         $page.close();
         return;
     }
@@ -97,18 +101,21 @@ const viewMore = async ($page: puppeteer.Page) => {
     await $page.waitForSelector("a.viewmore");
     await $page.click("a.viewmore");
     await $page.waitForTimeout(200);
+    await console.log("Clicked viewmore button");
 };
 
 (async function main() {
     try {
         //set {headless : false} to debug
-        const $browser = await puppeteer.launch({ headless: true });
+        let laptops: ItemSchema[] = [];
+        let mobiles: ItemSchema[] = [];
+
+        const $browser = await puppeteer.launch({ headless: true});
         /* Edit code here */
-        await crawlByCategory("laptop", $browser, "laptop",4, laptops);
-        await crawlByCategory("dtdd", $browser, "mobile phone", 4, mobiles);
+        await crawlByCategory("laptop", $browser, "laptop", laptops, 4);
+        await crawlByCategory("dtdd", $browser, "mobile phone", mobiles, 5);
         await $browser.close();
-        const data = laptops.concat(mobiles);
-        saveToJSON(data, "data.json");
+        await saveToJSON(laptops.concat(mobiles), 'data.json');
         /* == */
     } catch (err) {
         console.log(`=======ERROR=======\n ${err}`);
