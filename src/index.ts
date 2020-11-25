@@ -6,7 +6,7 @@ import { saveToJSON } from "./save";
 dotenv.config();
 
 const BASEURL_TGDD = process.env.BASEURL_TGDD?.toString() || "https://www.thegioididong.com";
-const BRANDS_REGEX = /(Apple|iPhone|Samsung|OPPO|Xiaomi|Vivo|Realme|OnePlus|Vsmart|Nokia|Huawei|Mobell|Masstel|Itel|Blackberry|Energizer|Asus|HP|Lenovo|Acer|Dell|LG|MSI)/g
+const BRANDS_REGEX = /(Apple|iPhone|Samsung|OPPO|Xiaomi|Vivo|Realme|OnePlus|Vsmart|Nokia|Huawei|Mobell|Masstel|Itel|BlackBerry|Energizer|Asus|HP|Lenovo|Acer|Dell|LG|MSI)/g
 
 const crawlByCategory = async (
     url: string,
@@ -99,6 +99,7 @@ const getItemByUrl = async (
             brand
         };
         collection.push(_item);
+        console.log(`${category} +item`);
         await $page.close();
     } catch (err) {
         console.log(`${err + itemUrl}`);
@@ -108,9 +109,8 @@ const getItemByUrl = async (
 };
 
 const viewMore = async ($page: puppeteer.Page) => {
-    await $page.waitForSelector("a.viewmore");
-    await $page.click("a.viewmore");
-    await $page.waitForTimeout(200);
+    await $page.waitForSelector("a[class='viewmore']");
+    await $page.click("a[class='viewmore']");
     await console.log("Clicked viewmore button");
 };
 
@@ -123,7 +123,7 @@ const viewMore = async ($page: puppeteer.Page) => {
         const $browser = await puppeteer.launch({ headless: true});
         /* Edit code here */
         // Becareful pageOfItems maximum
-        await crawlByCategory("laptop", $browser, "laptop", laptops, 4);
+        await crawlByCategory("laptop", $browser, "laptop", laptops, 5);
         await crawlByCategory("dtdd", $browser, "mobile phone", mobiles, 6);
         await $browser.close();
         await saveToJSON(laptops.concat(mobiles), 'data.json');
