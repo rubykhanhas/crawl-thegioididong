@@ -2,7 +2,7 @@
 
 ### Quick start
 ```
-yarn install && yarn run build && yarn start && yarn run open
+yarn install && yarn build && yarn start && yarn open
 ```
 
 ### About
