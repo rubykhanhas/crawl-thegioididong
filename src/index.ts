@@ -6,7 +6,7 @@ import { saveToJSON } from "./save";
 dotenv.config();
 
 const BASEURL_TGDD = process.env.BASEURL_TGDD?.toString() || "https://www.thegioididong.com";
-const BRANDS_REGEX = /(Apple|iPhone|Samsung|OPPO|Xiaomi|Vivo|Realme|OnePlus|Vsmart|Nokia|Huawei|Mobell|Masstel|Itel|BlackBerry|Energizer|Asus|HP|Lenovo|Acer|Dell|LG|MSI)/g
+const BRANDS_REGEX = /(Apple|iPhone|Samsung|OPPO|Xiaomi|Vivo|Realme|OnePlus|Vsmart|Nokia|Huawei|Mobell|MOBELL|Masstel|Itel|BlackBerry|Energizer|Asus|HP|Lenovo|Acer|Dell|LG|MSI)/g
 
 const crawlByCategory = async (
     url: string,
@@ -81,8 +81,8 @@ const getItemByUrl = async (
         const brands = await title.match(BRANDS_REGEX);
         if(brands && brands.length > 0){
             brand = brands[0];
-            if(brands[0] === "iPhone")
-            brand = "Apple";
+            brand = brands[0] == "iPhone" ? "Apple" : brands[0];
+            brand = brands[0] == "MOBELL" ? "Mobell" : brands[0];
         }
         //#endregion
         const _item = {
