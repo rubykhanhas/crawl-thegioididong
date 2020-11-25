@@ -6,6 +6,7 @@ type CommentSchema = {
 type ItemSchema = {
     category: string,
     title: string,
+    brand: string,
     images: string[]
     price: number,
     sales: number,

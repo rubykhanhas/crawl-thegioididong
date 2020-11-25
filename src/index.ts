@@ -6,6 +6,7 @@ import { saveToJSON } from "./save";
 dotenv.config();
 
 const BASEURL_TGDD = process.env.BASEURL_TGDD?.toString() || "https://www.thegioididong.com";
+const BRANDS_REGEX = /(Apple|iPhone|Samsung|OPPO|Xiaomi|Vivo|Realme|OnePlus|Vsmart|Nokia|Huawei|Mobell|Masstel|Itel|Blackberry|Energizer|Asus|HP|Lenovo|Acer|Dell|LG|MSI)/g
 
 const crawlByCategory = async (
     url: string,
@@ -75,7 +76,15 @@ const getItemByUrl = async (
         const remain = Math.floor(Math.random() * 100);
         const sales = Math.floor(Math.random() * 4) * 5;
         const salePrice = parseInt((price ? price - (sales / 100) * price : 0).toFixed(0));
-
+        //#region  first brand name
+        let brand = "";
+        const brands = await title.match(BRANDS_REGEX);
+        if(brands && brands.length > 0){
+            brand = brands[0];
+            if(brands[0] === "iPhone")
+            brand = "Apple";
+        }
+        //#endregion
         const _item = {
             images,
             title,
@@ -87,6 +96,7 @@ const getItemByUrl = async (
             sales,
             salePrice,
             category,
+            brand
         };
         collection.push(_item);
         await $page.close();
@@ -112,8 +122,9 @@ const viewMore = async ($page: puppeteer.Page) => {
 
         const $browser = await puppeteer.launch({ headless: true});
         /* Edit code here */
+        // Becareful pageOfItems maximum
         await crawlByCategory("laptop", $browser, "laptop", laptops, 4);
-        await crawlByCategory("dtdd", $browser, "mobile phone", mobiles, 5);
+        await crawlByCategory("dtdd", $browser, "mobile phone", mobiles, 6);
         await $browser.close();
         await saveToJSON(laptops.concat(mobiles), 'data.json');
         /* == */
